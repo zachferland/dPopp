@@ -55,9 +55,9 @@ models.forEach(async (model) => {
   });
 
   await writeFile(
-    new URL("model.json", import.meta.url),
+    new URL("create-model.json", import.meta.url),
     JSON.stringify(manager.toJSON())
   );
 });
 
-console.log("Encoded model written to scripts/model.json file");
+console.log("Encoded model written to scripts/create-model.json file");
