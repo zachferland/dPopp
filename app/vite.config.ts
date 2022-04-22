@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import EnvironmentPlugin from 'vite-plugin-environment'
+import EnvironmentPlugin from "vite-plugin-environment";
 
 import path from "path";
 import react from "@vitejs/plugin-react";
@@ -16,7 +16,7 @@ export default defineConfig({
     wasm({
       filter: /.*\.wasm$/,
     }),
-    EnvironmentPlugin(['DPOPP_GOOGLE_CLIENT_ID', 'DPOPP_IAM_URL']),
+    EnvironmentPlugin(["DPOPP_GOOGLE_CLIENT_ID", "DPOPP_IAM_URL"]),
     topLevelAwait(),
   ],
   resolve: {
@@ -27,7 +27,11 @@ export default defineConfig({
     },
   },
   build: {
-    target: "modules",
-    minify: "terser",
+    target: "esnext",
+    // target: "modules",
+    // minify: "terser",
+  },
+  optimizeDeps: {
+    include: [],
   },
 });

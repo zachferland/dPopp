@@ -12,8 +12,10 @@ import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { Passport, Stamp, PROVIDER_ID } from "@dpopp/types";
 
 // --- Data Storage Functions
-import { LocalStorageDatabase } from "./services/databaseStorage";
+import { CeramicDatabase, LocalStorageDatabase } from "./services/databaseStorage";
 import { ProviderSpec, STAMP_PROVIDERS } from "./config/providers";
+
+import { EthereumAuthProvider, SelfID } from "@self.id/web";
 
 export type AllProvidersState = {
   [provider in PROVIDER_ID]: {
@@ -47,6 +49,7 @@ export interface UserContextState {
   connectedWallets: WalletState[];
   signer: JsonRpcSigner | undefined;
   walletLabel: string | undefined;
+  ceramicDatabase?: CeramicDatabase;
 }
 const startingState: UserContextState = {
   loggedIn: false,
@@ -75,7 +78,8 @@ export const UserContext = React.createContext(startingState);
 function App(): JSX.Element {
   const [loggedIn, setLoggedIn] = useState(false);
   const [passport, setPassport] = useState<Passport | undefined>(undefined);
-  const [localStorageDatabase, setLocalStorageDatabase] = useState<LocalStorageDatabase | undefined>(undefined);
+  // const [localStorageDatabase, setLocalStorageDatabase] = useState<LocalStorageDatabase | undefined>(undefined);
+  const [ceramicDatabase, setCeramicDatabase] = useState<CeramicDatabase>();
   const [allProvidersState, setAllProviderState] = useState(startingAllProvidersState);
 
   // Use onboard to control the current provider/wallets
@@ -109,12 +113,27 @@ function App(): JSX.Element {
       // store in localstorage
       window.localStorage.setItem("connectedWallets", JSON.stringify(connectedWalletsLabelArray));
 
-      if (address) {
+      if (wallet && address) {
         // Load localStorage Passport data
-        const localStorageInstance = new LocalStorageDatabase(address);
-        setLocalStorageDatabase(localStorageInstance);
-        const loadedPassport = localStorageInstance?.getPassport(localStorageInstance.passportKey);
-        setPassport(loadedPassport);
+        // const localStorageInstance = new LocalStorageDatabase(address);
+        // setLocalStorageDatabase(localStorageInstance);
+        // const loadedPassport = localStorageInstance?.getPassport(localStorageInstance.passportKey);
+        // setPassport(loadedPassport);
+
+        const ethereumProvider = wallet.provider;
+        // what happens if user rejects?
+        SelfID.authenticate({
+          authProvider: new EthereumAuthProvider(ethereumProvider, address),
+          ceramic: "testnet-clay",
+          // Make sure the `ceramic` and `connectNetwork` parameter connect to the same network
+          connectNetwork: "testnet-clay",
+        }).then((authedSelfId) => {
+          const ceramicDatabaseInstance = new CeramicDatabase(authedSelfId);
+          setCeramicDatabase(ceramicDatabaseInstance);
+          ceramicDatabaseInstance.getPassport("not a did").then((pass) => {
+            setPassport(pass);
+          });
+        });
       }
     }
   }, [connectedWallets, wallet]);
@@ -181,19 +200,41 @@ function App(): JSX.Element {
   }, [passport]);
 
   const handleCreatePassport = (): void => {
-    if (localStorageDatabase) {
-      const passportDid = localStorageDatabase.createPassport();
-      const getPassport = localStorageDatabase.getPassport(passportDid);
-      setPassport(getPassport);
+    // if (localStorageDatabase) {
+    //   const passportDid = localStorageDatabase.createPassport();
+    //   const getPassport = localStorageDatabase.getPassport(passportDid);
+    //   setPassport(getPassport);
+    // }
+    async function createCeramicPassport() {
+      if (ceramicDatabase) {
+        await ceramicDatabase.createPassport();
+      }
     }
+    async function loadCeramicPassport() {
+      if (ceramicDatabase) {
+        const getPassport = await ceramicDatabase.getPassport("not a did");
+        setPassport(getPassport);
+      }
+    }
+    createCeramicPassport().then(loadCeramicPassport);
   };
 
   const handleAddStamp = (stamp: Stamp): void => {
-    if (localStorageDatabase) {
-      localStorageDatabase.addStamp(localStorageDatabase.passportKey, stamp);
-      const getPassport = localStorageDatabase.getPassport(localStorageDatabase.passportKey);
-      setPassport(getPassport);
+    // if (localStorageDatabase) {
+    //   localStorageDatabase.addStamp(localStorageDatabase.passportKey, stamp);
+    // }
+    async function addStampCeramic() {
+      if (ceramicDatabase) {
+        await ceramicDatabase.addStamp(stamp);
+      }
     }
+    async function loadCeramicPassport() {
+      if (ceramicDatabase) {
+        const getPassport = await ceramicDatabase.getPassport("not a did");
+        setPassport(getPassport);
+      }
+    }
+    addStampCeramic().then(loadCeramicPassport);
   };
 
   const handleSaveStamp = (stamp: Stamp): void => {
@@ -236,8 +277,9 @@ function App(): JSX.Element {
       connectedWallets,
       signer,
       walletLabel,
+      ceramicDatabase,
     }),
-    [loggedIn, address, passport, signer, connectedWallets, allProvidersState]
+    [loggedIn, address, passport, signer, connectedWallets, allProvidersState, ceramicDatabase]
   );
 
   return (
