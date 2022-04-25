@@ -149,4 +149,11 @@ export class CeramicDatabase {
       console.log("no passport founnd");
     }
   }
+
+  async deletePassport(): Promise<void> {
+    console.log("remove passport");
+    await this.store.remove("Passport");
+    const passport = await this.store.get("Passport");
+    console.log("Cleared passport: ", JSON.stringify(passport));
+  }
 }

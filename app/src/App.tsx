@@ -50,6 +50,7 @@ export interface UserContextState {
   signer: JsonRpcSigner | undefined;
   walletLabel: string | undefined;
   ceramicDatabase?: CeramicDatabase;
+  handleDeletePassport?: () => void;
 }
 const startingState: UserContextState = {
   loggedIn: false,
@@ -237,6 +238,15 @@ function App(): JSX.Element {
     addStampCeramic().then(loadCeramicPassport);
   };
 
+  const handleDeletePassport = (): void => {
+    async function deleteCeramicPassport() {
+      if (ceramicDatabase) {
+        await ceramicDatabase.deletePassport();
+      }
+    }
+    deleteCeramicPassport().then(() => setPassport(undefined));
+  };
+
   const handleSaveStamp = (stamp: Stamp): void => {
     if (passport) {
       // check if there is already a stamp recorded for this provider
@@ -278,6 +288,7 @@ function App(): JSX.Element {
       signer,
       walletLabel,
       ceramicDatabase,
+      handleDeletePassport,
     }),
     [loggedIn, address, passport, signer, connectedWallets, allProvidersState, ceramicDatabase]
   );

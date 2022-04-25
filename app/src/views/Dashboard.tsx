@@ -10,7 +10,8 @@ import { Box, Accordion, AccordionItem, AccordionButton, AccordionPanel, Accordi
 import { UserContext } from "../App";
 
 export function Dashboard(): JSX.Element {
-  const { handleConnection, address, walletLabel, passport, handleCreatePassport } = useContext(UserContext);
+  const { handleConnection, address, walletLabel, passport, handleCreatePassport, handleDeletePassport } =
+    useContext(UserContext);
 
   return (
     <div className="mx-auto flex flex-wrap">
@@ -62,6 +63,14 @@ export function Dashboard(): JSX.Element {
                 onClick={handleCreatePassport}
               >
                 Create Passport
+              </button>
+            )}
+            {passport && (
+              <button
+                className="bg-gray-100 mb-10 min-w-full mt-10 px-20 py-4 rounded-lg text-violet-500"
+                onClick={handleDeletePassport}
+              >
+                Delete Passport
               </button>
             )}
             <pre className="text-gray-100">
