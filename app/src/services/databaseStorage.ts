@@ -58,9 +58,20 @@ export class LocalStorageDatabase implements DataStorageBase {
   }
 }
 
+type CeramicStamp = {
+  provider: string;
+  credential: string;
+};
+type CeramicPassport = {
+  issuanceDate: Date;
+  expiryDate: Date;
+  stamps: CeramicStamp[];
+};
+
 export type ModelTypes = {
   schemas: {
-    Passport: Passport;
+    // Passport: Passport;
+    Passport: CeramicPassport;
     VerifiableCredential: VerifiableCredential;
   };
   definitions: {
@@ -114,36 +125,37 @@ export class CeramicDatabase {
     try {
       const passport = await this.store.get("Passport");
       console.log("Loaded passport: ", JSON.stringify(passport));
-      return passport ?? undefined;
+      // `stamps` is stored as ceramic URLs - must load actual VC data from URL
+      const stampsToLoad =
+        passport?.stamps.map(async (_stamp) => {
+          const { provider, credential } = _stamp;
+          const loadedCred = await this.loader.load(credential);
+          return {
+            provider,
+            credential: loadedCred.content,
+          } as Stamp;
+        }) ?? [];
+      const loadedStamps = await Promise.all(stampsToLoad);
+
+      return passport
+        ? { issuanceDate: passport.issuanceDate, expiryDate: passport.expiryDate, stamps: loadedStamps }
+        : undefined;
     } catch (e) {
       console.error(e);
       return undefined;
     }
   }
   async addStamp(stamp: Stamp): Promise<void> {
-    // const passport = this.getPassport(did);
-    // if (passport) {
-    //   passport.stamps.push(stamp);
-    //   window.localStorage.setItem(did, JSON.stringify(passport));
-    // } else {
-    //   const newPassport = {
-    //     issuanceDate: new Date(),
-    //     expiryDate: new Date(),
-    //     stamps: [stamp],
-    //   };
-    //   window.localStorage.setItem(did, JSON.stringify(newPassport));
-    // }
     console.log("add stamp ceramic");
     const passport = await this.store.get("Passport");
     if (passport) {
-      // TODO - save stamps as ceramic URLs, NOT VCs
-      // error: 'Internal Server Error': {"error":"Validation Error: data/stamps/0/credential must be string"}
+      // Must save stamps as ceramic URLs, NOT VCs - see Passports.json in schemas/
+      // otherwise get error: 'Internal Server Error': {"error":"Validation Error: data/stamps/0/credential must be string"}
+      const newStampTile = await this.model.createTile("VerifiableCredential", stamp.credential);
+      console.log("new stamp: ", JSON.stringify(newStampTile.content), "; id: ", JSON.stringify(newStampTile.id));
 
-      const newStamps = passport?.stamps.concat(stamp);
-      const updatedPassport = { ...passport, stamps: newStamps };
-      const savedPassport = await this.model.createTile("Passport", updatedPassport);
-      console.log("savedPassport: ", JSON.stringify(savedPassport.content), "; id: ", JSON.stringify(savedPassport.id));
-      const streamID = await this.store.set("Passport", { ...savedPassport.content });
+      const newStamps = passport?.stamps.concat({ provider: stamp.provider, credential: newStampTile.id.toUrl() });
+      const streamID = await this.store.merge("Passport", { stamps: newStamps });
       console.log("Stream ID: ", streamID.toUrl());
     } else {
       console.log("no passport founnd");
