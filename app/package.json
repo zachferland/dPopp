@@ -95,6 +95,6 @@
   "resolutions": {
     "csstype": "3.0.10",
     "leveldown": "6.1.1",
-    "caip": "ChainAgnostic/caip-js#23caf33"
+    "caip": "1.1.0"
   }
 }
