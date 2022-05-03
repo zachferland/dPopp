@@ -9,8 +9,13 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: "/*",
-        destination: "/#/*",
+        source: "/",
+        destination: "https://#/",
+        basePath: false,
+      },
+      {
+        source: "/Dashboard",
+        destination: "https://#/Dashboard",
         basePath: false,
       },
     ];
