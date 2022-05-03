@@ -16,7 +16,9 @@ const Home: NextPage = () => {
   // Route user to dashboard when wallet is connected
   useEffect(() => {
     if (connectedWallets.length > 0) {
-      router.push("/Dashboard");
+      router.push({
+        pathname: "/Dashboard",
+      });
     }
   }, [connectedWallets.length]);
 

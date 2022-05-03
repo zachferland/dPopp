@@ -37,7 +37,9 @@ const Dashboard: NextPage = () => {
   // Route user to home when wallet is disconnected
   useEffect(() => {
     if (connectedWallets.length == 0) {
-      router.push("/");
+      router.push({
+        pathname: "/",
+      });
     }
   }, [connectedWallets.length]);
 

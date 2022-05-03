@@ -6,5 +6,14 @@ module.exports = {
       "/dashboard": { page: "/Dashboard" },
     };
   },
+  async rewrites() {
+    return [
+      {
+        source: "/*",
+        destination: "/#/*",
+        basePath: false,
+      },
+    ];
+  },
   reactStrictMode: true,
 };
