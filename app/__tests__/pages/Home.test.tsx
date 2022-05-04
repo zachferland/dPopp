@@ -4,7 +4,6 @@ import userEvent from "@testing-library/user-event";
 import Home from "../../pages/index";
 import { UserContext, UserContextState } from "../../context/userContext";
 import { STAMP_PROVIDERS } from "../../config/providers";
-import { act } from "react-dom/test-utils";
 
 jest.mock("../../utils/onboard.ts");
 
