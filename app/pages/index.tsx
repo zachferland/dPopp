@@ -10,15 +10,15 @@ import { useRouter } from "next/router";
 import { UserContext } from "../context/userContext";
 
 const Home: NextPage = () => {
-  const { handleConnection, address, walletLabel, connectedWallets } = useContext(UserContext);
+  const { handleConnection, address, walletLabel, wallet } = useContext(UserContext);
   const router = useRouter();
 
   // Route user to dashboard when wallet is connected
   useEffect(() => {
-    if (connectedWallets.length > 0) {
+    if (wallet) {
       router.push("/Dashboard");
     }
-  }, [connectedWallets.length]);
+  }, [wallet]);
 
   return (
     <div className="mx-auto flex flex-wrap">

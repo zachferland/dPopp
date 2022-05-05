@@ -23,23 +23,16 @@ import {
 import { UserContext } from "../context/userContext";
 
 const Dashboard: NextPage = () => {
-  const {
-    handleConnection,
-    address,
-    walletLabel,
-    passport,
-    isLoadingPassport,
-    handleCreatePassport,
-    connectedWallets,
-  } = useContext(UserContext);
+  const { handleConnection, address, walletLabel, passport, isLoadingPassport, handleCreatePassport, wallet } =
+    useContext(UserContext);
   const router = useRouter();
 
   // Route user to home when wallet is disconnected
   useEffect(() => {
-    if (connectedWallets.length == 0) {
+    if (!wallet) {
       router.push("/");
     }
-  }, [connectedWallets.length]);
+  }, [wallet]);
 
   useEffect(() => {
     if (!passport && !isLoadingPassport) {

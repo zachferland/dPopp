@@ -10,9 +10,6 @@ jest.mock("../../utils/onboard.ts");
 
 const mockHandleConnection = jest.fn();
 const mockCreatePassport = jest.fn();
-const mockHasStamp = jest.fn();
-const getStampIndex = jest.fn();
-const handleSaveStamp = jest.fn();
 const handleAddStamp = jest.fn();
 const mockUserContext: UserContextState = {
   loggedIn: true,
@@ -28,14 +25,11 @@ const mockUserContext: UserContextState = {
       stamp: undefined,
     },
   },
-  hasStamp: mockHasStamp,
-  getStampIndex: getStampIndex,
-  handleSaveStamp: handleSaveStamp,
   handleAddStamp: handleAddStamp,
   handleCreatePassport: mockCreatePassport,
   handleConnection: mockHandleConnection,
   address: mockAddress,
-  connectedWallets: [mockWallet],
+  wallet: mockWallet,
   signer: undefined,
   walletLabel: mockWallet.label,
 };
