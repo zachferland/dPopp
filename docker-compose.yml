@@ -1,10 +1,22 @@
 version: "3.9"
 services:
   # ceramic-daemon:
-  #   image: ceramicnetwork/go-ipfs-daemon:latest
+  #   image: ceramicnetwork/js-ceramic:latest
   #   ports:
-  #     - "5001:5001"
-  #     - "8011:8011"
+  #     - "7007:7007"
+  ceramic-daemon:
+    image: node:16
+    ports:
+      - "7007:7007"
+    volumes:
+      - ./database-client/integration-tests/setup-ceramic.sh:/dpopp/database-client/integration-tests/setup-ceramic.sh
+      - ./schemas:/dpopp/schemas
+      - ./types:/dpopp/types
+      - ./lerna.json:/dpopp/lerna.json
+      - ./package.json:/dpopp/package.json
+      - ./yarn.lock:/dpopp/yarn.lock
+    entrypoint:
+      ["sh", "/dpopp/database-client/integration-tests/setup-ceramic.sh"]
   ceramic-integration-test:
     image: node:16
     volumes:
