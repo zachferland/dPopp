@@ -196,14 +196,16 @@ export const UserContextProvider = ({ children }: { children: any }) => {
     passport?.stamps.forEach((stamp: Stamp) => {
       const { provider } = stamp;
       const providerState = allProvidersState[provider];
-      const newProviderState = {
-        providerSpec: providerState.providerSpec,
-        stamp,
-      };
-      setAllProviderState((prevState) => ({
-        ...prevState,
-        [provider]: newProviderState,
-      }));
+      if (providerState) {
+        const newProviderState = {
+          providerSpec: providerState.providerSpec,
+          stamp,
+        };
+        setAllProviderState((prevState) => ({
+          ...prevState,
+          [provider]: newProviderState,
+        }));
+      }
     });
     // TODO remove providerstate on stamp removal
   }, [passport]);
