@@ -17,6 +17,7 @@ import {
   ModalCloseButton,
   useDisclosure,
   Button,
+  Spinner,
 } from "@chakra-ui/react";
 
 import { VerifiableCredential } from "@dpopp/types";
@@ -27,9 +28,15 @@ export type CardProps = {
   verifiableCredential?: VerifiableCredential;
   icon?: string; // todo figure out type
   issueCredentialWidget: JSX.Element;
+  isLoading?: boolean;
 };
 
-export const Card = ({ providerSpec, verifiableCredential, issueCredentialWidget }: CardProps): JSX.Element => {
+export const Card = ({
+  providerSpec,
+  verifiableCredential,
+  issueCredentialWidget,
+  isLoading = false,
+}: CardProps): JSX.Element => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <div className="w-full p-4 md:w-1/2 xl:w-1/4">
@@ -95,6 +102,18 @@ export const Card = ({ providerSpec, verifiableCredential, issueCredentialWidget
           <span className="flex w-full items-center justify-center border-t-2 p-2 text-gray-900">
             <img src="./assets/verifiedShield.svg" />
             <span className="ml-3 text-xl text-green-400">Verified</span>
+          </span>
+        ) : isLoading ? (
+          <span>
+            <Spinner
+              thickness="4px"
+              speed="0.65s"
+              emptyColor="gray.200"
+              color="purple.500"
+              size="md"
+              data-testid="loading-indicator"
+            />
+            Loading
           </span>
         ) : (
           issueCredentialWidget
