@@ -39,4 +39,8 @@ export const STAMP_PROVIDERS: Readonly<Providers> = {
     name: "Facebook",
     description: "Facebook name",
   },
+  Brightid: {
+    name: "Bright Id",
+    description: "Bright Id name",
+  },
 };
